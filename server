@@ -1,0 +1,112 @@
+#!/usr/bin/env zsh
+
+tomcat="tomcat10"
+
+CATALINAS="${CATALINA_HOME:-/usr/share/$tomcat}"
+
+port=`sudo awk -F'[=" ]+' '/Connector port="(.*)" protocol="HTTP\/1.1"/{print $4}' "$CATALINAS/conf/server.xml"`
+
+deploy() {
+  project=`grep -P "rootProject.name = '.*'" ./settings.gradle | awk '{print $3}' | awk -F"'" '{print $2}'`
+
+  echo "Building project: '$project'"
+
+  ./gradlew build
+
+  if ! [ $? -eq 0 ]; then
+    exit 1
+  fi
+
+  echo
+
+  sudo cp -rf "build/libs/$project.war" "$CATALINAS/webapps"
+
+  if ! [ $? -eq 0 ]; then
+    echo "Could not link $projec.war to $CATALINAS"
+    exit 1
+  fi
+
+  echo "Linking $project.war done\n"
+}
+
+ports=`sudo lsof -i -P -n`
+
+search="grep"
+flags="-i"
+
+if ! [ -x "$(command -v rg)"  ]; then
+  search="rg"
+  flags="-q"
+fi
+
+start() {
+  if echo "$ports" | $search $flags "\*:$port" > /dev/null; then
+    echo "Server already running on port $port"
+    exit 1
+  fi
+
+  echo "Starting tomcat server"
+
+  sudo /usr/share/$tomcat/bin/startup.sh @> /dev/null
+
+  if ! [ $? -eq 0 ]; then
+    echo "Something went wrong"
+    exit 1
+  fi
+}
+
+stop() {
+  if ! echo "$ports" | $search $flags "\*:$port" > /dev/null; then
+    echo "Server is not running"
+    exit 1
+  fi
+
+  echo "Shutting down tomcat server"
+
+  sudo /usr/share/$tomcat/bin/shutdown.sh @> /dev/null
+
+  if ! [ $? -eq 0 ]; then
+    echo "Something went wrong"
+    exit 1
+  fi
+}
+
+restart() {
+  if echo "$ports" | $search $flags "\*:$port" > /dev/null; then
+    # If Java is running on port $port, stop Tomcat
+    sudo /usr/share/$tomcat/bin/shutdown.sh @> /dev/null
+
+    if ! [ $? -eq 0 ]; then
+      echo "Something went wrong"
+      exit 1
+    fi
+  fi
+
+  # If Java is not running on port $port, start Tomcat
+  sudo /usr/share/$tomcat/bin/startup.sh @> /dev/null
+
+  if ! [ $? -eq 0 ]; then
+    echo "Something went wrong"
+    exit 1
+  fi
+}
+
+case "$1" in
+  push | update | restart | reload)
+    deploy
+    echo "Restarting tomcat server"
+
+    restart
+    ;;
+  init | start)
+    start
+    ;;
+  stop | shutdown)
+    stop
+    ;;
+  *) echo "Nothing was done, bad selection '$1'";;
+esac
+
+[ "$project" = "ROOT" ] && project=""
+
+echo "Server running on: http://localhost:$port/$project"

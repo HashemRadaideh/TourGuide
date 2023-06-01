@@ -1,0 +1,41 @@
+plugins {
+    id 'application'
+    id 'war'
+}
+
+group 'com.TourGuide'
+// version '1.0-SNAPSHOT'
+
+// sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.guava:guava:31.1-jre'
+
+    providedCompile group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '5.0.0'
+    providedCompile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '11.0.0-M5'
+    providedCompile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper', version: '11.0.0-M5'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+
+    // testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.3.1'
+
+    // // Mockito
+    testImplementation 'org.mockito:mockito-core:3.12.4'
+
+    // Optional: If using a web container for integration tests
+    testCompileOnly 'org.apache.tomcat.embed:tomcat-embed-core:9.0.54'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(20)
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
