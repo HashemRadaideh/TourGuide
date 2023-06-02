@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.TourGuide.actor.Admin;
-import com.TourGuide.actor.User;
+import com.TourGuide.model.AdminAccount;
+import com.TourGuide.model.UserAccount;
 import com.TourGuide.model.Post;
 import com.TourGuide.model.Report;
 
@@ -103,7 +103,7 @@ public class Database implements Serializable, AutoCloseable {
         password = (password != null) ? password : "";
 
         if (username.equals("admin") && password.equals("0")) {
-            return Admin.getInstance();
+            return AdminAccount.getInstance();
         }
 
         final Table table = getTable("users");
@@ -112,7 +112,7 @@ public class Database implements Serializable, AutoCloseable {
         }
 
         for (final Object user : table.getRows().values()) {
-            final User u = (User) user;
+            final UserAccount u = (UserAccount) user;
             if (u.getUsername().equals(username) && u.getPassword().equals(password) && u.getStatus()) {
                 return u;
             }
@@ -129,7 +129,7 @@ public class Database implements Serializable, AutoCloseable {
 
         int index = 0;
         for (final Object user : table.getRows().values()) {
-            final User u = (User) user;
+            final UserAccount u = (UserAccount) user;
             if (u.getUsername().equals(username)) {
                 return index;
             }
@@ -142,15 +142,15 @@ public class Database implements Serializable, AutoCloseable {
     private void createNewDatabase() {
         createNewTable("users");
         createNewTable("reports");
-        createNewTable("posts");
+        createNewTable("tours");
         createNewTable("messages");
 
-        final User acc1 = new User("UN1", "11", null, true, "Zaid", "Ahmad", "Irbid", 28);
-        final User acc2 = new User("UN2", "22", null, true, "Omar", "Farook", "Irbid", 30);
-        final User acc3 = new User("UN3", "33", null, true, "Maha", "Hani", "Amman", 42);
-        final User acc4 = new User("UN4", "44", null, true, "Hamzah", "Ali", "Zarqa", 37);
-        final User acc5 = new User("UN5", "55", null, true, "Salma", "Waleed", "Jerash", 40);
-        final User acc6 = new User("UN6", "66", null, false, "Ali", "Khaled", "Amman", 26);
+        final UserAccount acc1 = new UserAccount("UN1", "11", null, true, "Zaid", "Ahmad", "Irbid", 28);
+        final UserAccount acc2 = new UserAccount("UN2", "22", null, true, "Omar", "Farook", "Irbid", 30);
+        final UserAccount acc3 = new UserAccount("UN3", "33", null, true, "Maha", "Hani", "Amman", 42);
+        final UserAccount acc4 = new UserAccount("UN4", "44", null, true, "Hamzah", "Ali", "Zarqa", 37);
+        final UserAccount acc5 = new UserAccount("UN5", "55", null, true, "Salma", "Waleed", "Jerash", 40);
+        final UserAccount acc6 = new UserAccount("UN6", "66", null, false, "Ali", "Khaled", "Amman", 26);
 
         acc1.addFriends(Arrays.asList(acc2, acc3));
         acc2.addFriends(Arrays.asList(acc1, acc3, acc5));
@@ -167,12 +167,12 @@ public class Database implements Serializable, AutoCloseable {
             add("users", acc5);
             add("users", acc6);
 
-            add("posts", new Post(acc1.getUsername(), "Liverpool beats Man. City 2-1", true, "Sport"));
-            add("posts", new Post(acc1.getUsername(), "Apple expects to release iPhone 14 in October", true, "News"));
-            add("posts", new Post(acc2.getUsername(), "Expect snow next Sunday", true, "Weather"));
-            add("posts", new Post(acc3.getUsername(), "Italy fails to qualify for the world cup", true, "Sport"));
-            add("posts", new Post(acc3.getUsername(), "The deficit exceeds 2 million dollars", true, "Economy"));
-            add("posts",
+            add("tours", new Post(acc1.getUsername(), "Liverpool beats Man. City 2-1", true, "Sport"));
+            add("tours", new Post(acc1.getUsername(), "Apple expects to release iPhone 14 in October", true, "News"));
+            add("tours", new Post(acc2.getUsername(), "Expect snow next Sunday", true, "Weather"));
+            add("tours", new Post(acc3.getUsername(), "Italy fails to qualify for the world cup", true, "Sport"));
+            add("tours", new Post(acc3.getUsername(), "The deficit exceeds 2 million dollars", true, "Economy"));
+            add("tours",
                     new Post(acc5.getUsername(), "The minimum wage has been raised to 300 dinars", true, "Economy"));
 
             add("reports",
