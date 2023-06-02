@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@ page import="java.util.Date" %>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,59 +20,48 @@
       <div class="home-page">
 
         <form action="Report" method="post">
+          <input type="hidden" name="time" value="<%= new Date() %>" readonly>
+
           <div class="question">
-            i. Date (automatically entered)
+            Enter phone number
           </div>
           <div class="answer">
-          <!-- Date input (automatically filled) -->
-            <input type="text" value="<?php echo date('Y-m-d'); ?>" readonly>
+            <input type="tel" name="phone" required>
           </div>
 
           <div class="question">
-            ii. Enter phone number (required field)
+            Country
           </div>
           <div class="answer">
-          <!-- Phone number input -->
-            <input type="tel" required>
-          </div>
-
-          <div class="question">
-            iii. Country (required field)
-          </div>
-          <div class="answer">
-          <!-- Country dropdown list -->
-            <select required>
+            <select name="country" required>
               <option value="">Select a country</option>
-              <option value="country1">Country 1</option>
-              <option value="country2">Country 2</option>
-            <!-- Add more options as needed -->
+              <option value="Jordan">Jordan</option>
+              <%= request.getAttribute("countrys") != null ? request.getAttribute("countrys") : "" %>
             </select>
           </div>
 
           <div class="question">
-            iv. City (required field)
+            City
           </div>
           <div class="answer">
-          <!-- City dropdown list based on the selected country -->
-            <select required>
+            <select name="city" required>
               <option value="">Select a city</option>
-            <!-- Add options dynamically using JavaScript based on the selected country -->
+              <option value="Jordan">Jordan</option>
+              <%= request.getAttribute("citys") != null ? request.getAttribute("citys") : "" %>
             </select>
           </div>
 
           <div class="question">
-            v. Upload a picture/video – max 20 MB- of the violation (required field)
+            Upload a picture/video - max 20 MB- of the violation
           </div>
           <div class="answer">
-          <!-- File upload input -->
-            <input type="file" accept="image/*, video/*" required>
+            <input type="file" name="media" accept="image/*, video/*" >
           </div>
 
           <div class="question">
-            vi. Select the type of violation: (required field)
+            Select the type of violation:
           </div>
           <div class="answer">
-          <!-- Violation type radio buttons -->
             <label>
               <input type="radio" name="violation" value="red-light" required>
               Red light crossing
