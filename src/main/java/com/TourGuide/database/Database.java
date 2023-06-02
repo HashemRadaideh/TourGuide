@@ -13,7 +13,7 @@ import java.util.List;
 import com.TourGuide.model.AdminAccount;
 import com.TourGuide.model.UserAccount;
 import com.TourGuide.model.Post;
-import com.TourGuide.model.Report;
+import com.TourGuide.model.ReportTicket;
 
 /**
  * Database
@@ -176,18 +176,23 @@ public class Database implements Serializable, AutoCloseable {
                     new Post(acc5.getUsername(), "The minimum wage has been raised to 300 dinars", true, "Economy"));
 
             add("reports",
-                    new Report(acc1.getUsername(), acc2.getUsername(), null, "He is gay!?", null, null, null, null));
+                    new ReportTicket(acc1.getUsername(), acc2.getUsername(), null, "He is gay!?", null, null, null,
+                            null));
             add("reports",
-                    new Report(acc3.getUsername(), acc2.getUsername(), null, "Hello, World!", null, null, null, null));
-
-            add("reports",
-                    new Report(acc2.getUsername(), acc1.getUsername(), null, "I like one piece!", null, null, null,
+                    new ReportTicket(acc3.getUsername(), acc2.getUsername(), null, "Hello, World!", null, null, null,
                             null));
 
             add("reports",
-                    new Report(acc1.getUsername(), acc5.getUsername(), null, "Hey, there!", null, null, null, null));
+                    new ReportTicket(acc2.getUsername(), acc1.getUsername(), null, "I like one piece!", null, null,
+                            null,
+                            null));
+
             add("reports",
-                    new Report(acc3.getUsername(), acc5.getUsername(), null, "This is a report.", null, null, null,
+                    new ReportTicket(acc1.getUsername(), acc5.getUsername(), null, "Hey, there!", null, null, null,
+                            null));
+            add("reports",
+                    new ReportTicket(acc3.getUsername(), acc5.getUsername(), null, "This is a report.", null, null,
+                            null,
                             null));
         } catch (final Exception e) {
             e.printStackTrace();

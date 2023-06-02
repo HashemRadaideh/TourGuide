@@ -5,26 +5,26 @@ import java.util.Date;
 /**
  * Report
  */
-public class Report {
+public class ReportTicket {
     private String sender;
     private Date date;
     private String phoneNumber;
     private String country;
     private String city;
-    private String violationType;
     private String mediaUrl;
+    private String violationType;
     private String content;
 
-    public Report(String sender, String content, Date date, String phoneNumber, String country, String city,
-            String violationType, String mediaUrl) {
+    public ReportTicket(String sender, String content, Date date, String phoneNumber, String country, String city,
+            String mediaUrl, String violationType) {
         this.country = country;
         this.sender = sender;
         this.content = content;
         this.date = date;
         this.phoneNumber = phoneNumber;
         this.city = city;
-        this.violationType = violationType;
         this.mediaUrl = mediaUrl;
+        this.violationType = violationType;
     }
 
     public String getSender() {
