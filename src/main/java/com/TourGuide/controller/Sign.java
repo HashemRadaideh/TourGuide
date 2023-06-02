@@ -19,7 +19,7 @@ public class Sign extends HttpServlet {
 
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        // Invalidate the session to remove the "loggedIn" attribute
+        response.setContentType("text/html");
         var session = request.getSession();
         session.invalidate();
 

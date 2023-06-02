@@ -1,6 +1,9 @@
 package com.TourGuide.controller;
 
 import java.io.IOException;
+
+import com.TourGuide.database.Database;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -21,18 +24,21 @@ public class Tour extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html");
 
-        // var db = Database.getInstance();
-        // var table = db.getTable("Content");
-        // var out = response.getWriter();
+        var db = Database.getInstance();
+        var table = db.getTable("posts");
 
         var content = new StringBuilder();
 
-        content.append("<div class=\"block\">");
         for (int i = 0; i < 10; i++) {
+            String userId = "" + i;
+            String postId = "" + i;
+            content.append("<div class=\"block\">");
             content.append("<h1>Hello, World!</h1>");
-            content.append("<a href=\"/Report\" class=\"button\">Report</a>");
+            content.append("<a href=\"/Report?userId=" + userId /* get current user id */ +
+                    "&postId=" + postId /* get the post's id to report */ +
+                    "\" class=\"button\">Report</a>");
+            content.append("</div>");
         }
-        content.append("</div>");
 
         request.setAttribute("content", content);
         request.getRequestDispatcher("tour.jsp").forward(request, response);
