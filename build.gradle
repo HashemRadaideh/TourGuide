@@ -19,11 +19,17 @@ dependencies {
     providedCompile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '11.0.0-M5'
     providedCompile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper', version: '11.0.0-M5'
 
+    // PostgreSQL JDBC driver
+    // implementation 'org.postgresql:postgresql:42.3.1'
+
+    // MySQL JDBC driver
+    implementation 'mysql:mysql-connector-java:8.0.26'
+
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
 
     // testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.3.1'
 
-    // // Mockito
+    // Mockito
     testImplementation 'org.mockito:mockito-core:3.12.4'
 
     // Optional: If using a web container for integration tests
