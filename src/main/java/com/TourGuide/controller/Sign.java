@@ -25,7 +25,6 @@ public class Sign extends HttpServlet {
         final var session = request.getSession();
         session.invalidate();
 
-        // Delete the "loggedIn" cookie
         final Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (final Cookie cookie : cookies) {
@@ -50,7 +49,6 @@ public class Sign extends HttpServlet {
 
         if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             request.setAttribute("msg", "Authentication failure.");
-
             final var dispatcher = request.getRequestDispatcher("sign.jsp#in");
             dispatcher.forward(request, response);
             return;
@@ -63,16 +61,23 @@ public class Sign extends HttpServlet {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-
             final var connection = DriverManager.getConnection(url + database, db_username, db_password);
-
             final var prompt = connection.createStatement();
 
             final var query = "SELECT * FROM user WHERE username = '" + username + "' AND password = '" + password
                     + "'";
             final var loggedIn = prompt.executeQuery(query);
 
-            if (loggedIn.next()) { // Check if result set has rows
+            if (loggedIn.next()) {
+                if (loggedIn.getInt("blocked") == 1) {
+                    request.setAttribute("msg", "User has been blocked.");
+                    request.getRequestDispatcher("sign.jsp#in").forward(request, response);
+                    loggedIn.close();
+                    prompt.close();
+                    connection.close();
+                    return;
+                }
+
                 if (remember != null) {
                     session.setAttribute("loggedIn", remember.trim());
                     final var rememberMe = new Cookie("rememberMe", remember.trim());
@@ -87,7 +92,6 @@ public class Sign extends HttpServlet {
                 }
 
                 session.setAttribute("userId", loggedIn.getInt("id"));
-
                 final var logedIn = new Cookie("userId", "" + loggedIn.getInt("id"));
                 logedIn.setMaxAge(60 * 60 * 24 * 365);
 
