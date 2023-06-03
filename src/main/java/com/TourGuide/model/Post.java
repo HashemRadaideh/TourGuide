@@ -6,14 +6,19 @@ package com.TourGuide.model;
 public class Post {
     private String username;
     private String content;
-    private boolean visible;
-    private String category;
+    private int reportCount;
 
     public Post(String username, String content, boolean visible, String category) {
         this.username = username;
         this.content = content;
-        this.visible = visible;
-        this.category = category;
+    }
+
+    public void addReport() {
+        this.reportCount++;
+    }
+
+    public int getReportCount() {
+        return reportCount;
     }
 
     public String getUsername() {
@@ -24,11 +29,4 @@ public class Post {
         return content;
     }
 
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public String getCategory() {
-        return category;
-    }
 }
