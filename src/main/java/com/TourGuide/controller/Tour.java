@@ -22,22 +22,22 @@ protected void doGet(final HttpServletRequest request, final HttpServletResponse
         throws ServletException, IOException {
     response.setContentType("text/html");
 
-    var content = new StringBuilder();
+    final var content = new StringBuilder();
 
-    var url = "jdbc:mysql://localhost:3306/";
-    var db_username = "admin";
-    var db_password = "password";
-    var database = "TourGuide";
+    final var url = "jdbc:mysql://localhost:3306/";
+    final var db_username = "admin";
+    final var db_password = "password";
+    final var database = "TourGuide";
 
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
 
-        var connection = DriverManager.getConnection(url + database, db_username, db_password);
+        final var connection = DriverManager.getConnection(url + database, db_username, db_password);
 
-        var prompt = connection.createStatement();
+        final var prompt = connection.createStatement();
 
-        var query = "SELECT p.*, u.username FROM post p JOIN user u ON p.ownerid = u.id";
-        var post = prompt.executeQuery(query);
+        final var query = "SELECT p.*, u.username FROM post p JOIN user u ON p.ownerid = u.id";
+        final var post = prompt.executeQuery(query);
 
         while (post.next()) {
             content.append("<div class=\"block\">");
