@@ -1,33 +1,28 @@
-package com.TourGuide.controller;
+package com.TourGuide.model;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
-@WebServlet("/Sign")
-public class Sign extends HttpServlet {
-    private static final long serialVersionUID = 1L;
+public class SignModel {
 
-    public Sign() {
-        super();
-    }
-
-    protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
+    public void logout(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html");
-        final var session = request.getSession();
+        HttpSession session = request.getSession();
         session.invalidate();
 
-        final Cookie[] cookies = request.getCookies();
+        Cookie[] cookies = request.getCookies();
         if (cookies != null) {
-            for (final Cookie cookie : cookies) {
+            for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("loggedIn")) {
                     cookie.setMaxAge(0);
                     response.addCookie(cookie);
@@ -35,38 +30,33 @@ public class Sign extends HttpServlet {
                 }
             }
         }
-
-        request.getRequestDispatcher("sign.jsp").forward(request, response);
     }
 
-    @Override
-    protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
+    public void authenticate(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final var username = request.getParameter("username");
-        final var password = request.getParameter("password");
-        final var remember = request.getParameter("remember");
-        final var session = request.getSession();
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String remember = request.getParameter("remember");
+        HttpSession session = request.getSession();
 
         if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             request.setAttribute("msg", "Authentication failure.");
-            final var dispatcher = request.getRequestDispatcher("sign.jsp#in");
-            dispatcher.forward(request, response);
+            request.getRequestDispatcher("sign.jsp#in").forward(request, response);
             return;
         }
 
-        final var url = "jdbc:mysql://localhost:3306/";
-        final var db_username = "admin";
-        final var db_password = "password";
-        final var database = "TourGuide";
+        String url = "jdbc:mysql://localhost:3306/";
+        String db_username = "admin";
+        String db_password = "password";
+        String database = "TourGuide";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            final var connection = DriverManager.getConnection(url + database, db_username, db_password);
-            final var prompt = connection.createStatement();
+            Connection connection = DriverManager.getConnection(url + database, db_username, db_password);
+            Statement prompt = connection.createStatement();
 
-            final var query = "SELECT * FROM user WHERE username = '" + username + "' AND password = '" + password
-                    + "'";
-            final var loggedIn = prompt.executeQuery(query);
+            String query = "SELECT * FROM user WHERE username = '" + username + "' AND password = '" + password + "'";
+            ResultSet loggedIn = prompt.executeQuery(query);
 
             if (loggedIn.next()) {
                 if (loggedIn.getInt("blocked") == 1) {
@@ -80,9 +70,9 @@ public class Sign extends HttpServlet {
 
                 if (remember != null) {
                     session.setAttribute("loggedIn", remember.trim());
-                    final var rememberMe = new Cookie("rememberMe", remember.trim());
+                    Cookie rememberMe = new Cookie("rememberMe", remember.trim());
                     session.setAttribute("loggedUser", username.trim());
-                    final var name = new Cookie("username", username.trim());
+                    Cookie name = new Cookie("username", username.trim());
 
                     rememberMe.setMaxAge(60 * 60 * 24 * 365);
                     name.setMaxAge(60 * 60 * 24 * 365);
@@ -92,7 +82,7 @@ public class Sign extends HttpServlet {
                 }
 
                 session.setAttribute("userId", loggedIn.getInt("id"));
-                final var logedIn = new Cookie("userId", "" + loggedIn.getInt("id"));
+                Cookie logedIn = new Cookie("userId", "" + loggedIn.getInt("id"));
                 logedIn.setMaxAge(60 * 60 * 24 * 365);
 
                 response.sendRedirect("/Home");
@@ -105,17 +95,17 @@ public class Sign extends HttpServlet {
 
             loggedIn.close();
 
-            final var adminQuery = "SELECT * FROM admin WHERE username = '" + username + "' AND password = '" + password
+            String adminQuery = "SELECT * FROM admin WHERE username = '" + username + "' AND password = '" + password
                     + "'";
 
-            final var adminResult = prompt.executeQuery(adminQuery);
+            ResultSet adminResult = prompt.executeQuery(adminQuery);
 
             if (adminResult.next()) {
                 if (remember != null) {
                     session.setAttribute("loggedIn", remember.trim());
-                    final var rememberMe = new Cookie("rememberMe", remember.trim());
+                    Cookie rememberMe = new Cookie("rememberMe", remember.trim());
                     session.setAttribute("loggedUser", username.trim());
-                    final var name = new Cookie("username", username.trim());
+                    Cookie name = new Cookie("username", username.trim());
 
                     rememberMe.setMaxAge(60 * 60 * 24 * 365);
                     name.setMaxAge(60 * 60 * 24 * 365);
@@ -142,13 +132,5 @@ public class Sign extends HttpServlet {
         } catch (ClassNotFoundException | SQLException e) {
             response.getWriter().println("Error: " + e.getMessage());
         }
-    }
-
-    protected void doPut(final HttpServletRequest request, final HttpServletResponse response)
-            throws ServletException, IOException {
-    }
-
-    protected void doDelete(final HttpServletRequest request, final HttpServletResponse response)
-            throws ServletException, IOException {
     }
 }
