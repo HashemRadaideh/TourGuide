@@ -1,4 +1,4 @@
-<jsp:directive.page language="java" import="com.TourGuide.database.*" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" />
+<jsp:directive.page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" />
 
 <jsp:scriptlet>
     String redirectURL;
