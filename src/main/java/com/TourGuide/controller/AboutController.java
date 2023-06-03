@@ -7,18 +7,18 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/Profile")
-public class Profile extends HttpServlet {
+@WebServlet("/About")
+public class AboutController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    public Profile() {
+    public AboutController() {
         super();
     }
 
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html");
-        request.getRequestDispatcher("profile.jsp").forward(request, response);
+        request.getRequestDispatcher("about.jsp").forward(request, response);
     }
 
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)

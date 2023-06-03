@@ -1,4 +1,4 @@
-package com.TourGuide.model;
+package com.TourGuide.util;
 
 public class Status {
     private boolean date = true;

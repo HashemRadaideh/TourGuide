@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Calendar;
 
-import com.TourGuide.model.Status;
+import com.TourGuide.util.Status;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

@@ -8,10 +8,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/Home")
-public class Home extends HttpServlet {
+public class HomeController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    public Home() {
+    public HomeController() {
         super();
     }
 
