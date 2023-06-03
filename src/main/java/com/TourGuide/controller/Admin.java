@@ -22,32 +22,49 @@ public class Admin extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html");
 
-        var content = new StringBuilder();
+        final var content = new StringBuilder();
 
-        var url = "jdbc:mysql://localhost:3306/";
-        var username = "admin";
-        var password = "password";
-        var database = "TourGuide";
+        final var url = "jdbc:mysql://localhost:3306/";
+        final var username = "admin";
+        final var password = "password";
+        final var database = "TourGuide";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            var connection = DriverManager.getConnection(url + database, username, password);
+            final var connection = DriverManager.getConnection(url + database, username, password);
 
-            var prompt = connection.createStatement();
+            final var prompt = connection.createStatement();
 
-            var query = "SELECT * FROM report";
-            var resultSet = prompt.executeQuery(query);
+            final var query = "SELECT r.reportid, r.postid, u.username, p.content, r.country, r.city, r.mediaurl, r.violationtype "
+                    +
+                    "FROM report r " +
+                    "JOIN user u ON r.userid = u.id " +
+                    "JOIN post p ON r.postid = p.id";
+            final var resultSet = prompt.executeQuery(query);
 
             content.append("<section id=\"user-reports\" class=\"container\">");
             while (resultSet.next()) {
                 content.append(
-                        "<div style=\"display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;\">");
-                content.append("<span>" + resultSet.getString("reportid") + "</span>");
+                        "<div style=\"margin-bottom: 10px;\">");
 
-                content.append("<form method=\"put\" action=\"/Report\" style=\"margin-left: 10px;\">");
-                content.append(
-                        "<input type=\"hidden\" name=\"postid\" value=\"" + resultSet.getString("postid") + "\" />");
+                // Display the post content
+                content.append("<span>Post Content: " + resultSet.getString("content") + "</span><br>");
+
+                // Display the violation type
+                content.append("<span>Violation Type: " + resultSet.getString("violationtype") + "</span><br>");
+
+                // Display the reporter username
+                content.append("<span>Reported by: " + resultSet.getString("username") + "</span><br>");
+
+                content.append("<form method=\"post\" action=\"/Admin\" style=\"margin-top: 10px;\">");
+
+                // Pass the report ID and post ID as hidden input fields
+                content.append("<input type=\"hidden\" name=\"reportid\" value=\"" +
+                        resultSet.getString("reportid") + "\" />");
+
+                content.append("<input type=\"hidden\" name=\"postid\" value=\"" +
+                        resultSet.getString("postid") + "\" />");
 
                 content.append(
                         "<label><input type=\"radio\" name=\"decision\" value=\"accept\" required /> Accept </label>");
@@ -66,7 +83,7 @@ public class Admin extends HttpServlet {
                     "</section>");
 
             request.setAttribute("content", content);
-            request.getRequestDispatcher("admin.jsp").forward(request, response);
+            request.getRequestDispatcher("admin.jsp#user-reports").forward(request, response);
 
             resultSet.close();
             prompt.close();
