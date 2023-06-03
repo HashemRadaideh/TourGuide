@@ -151,7 +151,7 @@ public class Report extends HttpServlet {
             response.getWriter().println("Error: " + e.getMessage());
         }
 
-        content = "<p>Thank you for submitting the form.</p>";
+        content = "<p>Thank you for submitting the report.</p>";
 
         request.setAttribute("content", content);
         request.getRequestDispatcher("response.jsp").forward(request, response);

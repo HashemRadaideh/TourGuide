@@ -2,12 +2,13 @@ CREATE TABLE report (
     reportid INT PRIMARY KEY AUTO_INCREMENT,
     userid INT NOT NULL,
     postid INT NOT NULL,
-    date DATETIME NOT NULL,
+    reportdate DATETIME NOT NULL,
     phonenumber VARCHAR(20),
     country VARCHAR(255),
     city VARCHAR(255),
     mediaurl VARCHAR(255),
     violationtype VARCHAR(255),
+    isactive INT DEFAULT 1,
     FOREIGN KEY (userid) REFERENCES user (id),
     FOREIGN KEY (postid) REFERENCES post (id)
 );
@@ -24,7 +25,7 @@ VALUES
     'USA',
     'Los Angeles',
     'http://example.com/image1.jpg',
-    'Harassment'
+    'red-light'
 ),
 (
     3,
@@ -34,7 +35,7 @@ VALUES
     'USA',
     'Chicago',
     'http://example.com/image2.jpg',
-    'Spam'
+    'stop-sign'
 ),
 (
     4,
@@ -44,5 +45,5 @@ VALUES
     'USA',
     'San Francisco',
     'http://example.com/image3.jpg',
-    'Inappropriate content'
+    'jaywalking'
 );
