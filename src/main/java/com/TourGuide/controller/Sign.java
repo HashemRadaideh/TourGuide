@@ -1,6 +1,8 @@
 package com.TourGuide.controller;
 
 import java.io.IOException;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -54,29 +56,56 @@ public class Sign extends HttpServlet {
             return;
         }
 
-        if (username.equals("user") && password.equals("1234")) {
-            response.sendRedirect("/Home");
-        } else if (username.equals("admin") && password.equals("1234")) {
-            response.sendRedirect("/Admin");
-        } else {
-            request.setAttribute("msg", "Authentication failure.");
+        var url = "jdbc:mysql://localhost:3306/";
+        var db_username = "admin";
+        var db_password = "password";
+        var database = "TourGuide";
 
-            final var dispatcher = request.getRequestDispatcher("sign.jsp#in");
-            dispatcher.forward(request, response);
-            return;
-        }
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
-        if (remember != null) {
-            session.setAttribute("loggedIn", remember.trim());
-            final var rememberMe = new Cookie("rememberMe", remember.trim());
-            session.setAttribute("loggedUser", username.trim());
-            final var name = new Cookie("username", username.trim());
+            var connection = DriverManager.getConnection(url + database, db_username, db_password);
 
-            rememberMe.setMaxAge(60 * 60 * 24 * 365);
-            name.setMaxAge(60 * 60 * 24 * 365);
+            var prompt = connection.createStatement();
 
-            response.addCookie(rememberMe);
-            response.addCookie(name);
+            var query = "SELECT * FROM user WHERE username = '" + username + "' AND password = '" + password + "'";
+            var loggedIn = prompt.executeQuery(query);
+
+            if (loggedIn.next()) { // Check if result set has rows
+                if (remember != null) {
+                    session.setAttribute("loggedIn", remember.trim());
+                    final var rememberMe = new Cookie("rememberMe", remember.trim());
+                    session.setAttribute("loggedUser", username.trim());
+                    final var name = new Cookie("username", username.trim());
+
+                    rememberMe.setMaxAge(60 * 60 * 24 * 365);
+                    name.setMaxAge(60 * 60 * 24 * 365);
+
+                    response.addCookie(rememberMe);
+                    response.addCookie(name);
+                }
+
+                session.setAttribute("userId", loggedIn.getInt("id"));
+
+                response.sendRedirect("/Home");
+            } else if (username.equals("admin") && password.equals("1234")) {
+
+                session.setAttribute("userId", loggedIn.getInt("10000"));
+
+                response.sendRedirect("/Admin");
+            } else {
+                request.setAttribute("msg", "Authentication failure.");
+
+                final var dispatcher = request.getRequestDispatcher("sign.jsp#in");
+                dispatcher.forward(request, response);
+                return;
+            }
+
+            loggedIn.close();
+            prompt.close();
+            connection.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            response.getWriter().println("Error: " + e.getMessage());
         }
     }
 
