@@ -14,36 +14,43 @@ CREATE TABLE report (
 );
 
 INSERT INTO report (
-    userid, postid, date, phonenumber, country, city, mediaurl, violationtype
+    userid,
+    postid,
+    reportdate,
+    phonenumber,
+    country,
+    city,
+    mediaurl,
+    violationtype
 )
 VALUES
 (
     2,
-    1,
-    '2023-06-01 10:30:00',
-    '555-7777',
-    'USA',
-    'Los Angeles',
-    'http://example.com/image1.jpg',
-    'red-light'
-),
-(
     3,
-    1,
-    '2023-06-02 09:45:00',
-    '555-9999',
+    '2023-06-02 10:15:00',
+    '555-5555',
     'USA',
-    'Chicago',
-    'http://example.com/image2.jpg',
-    'stop-sign'
+    'New York',
+    'http://example.com/image4.jpg',
+    'littering'
 ),
 (
+    1,
     4,
-    2,
-    '2023-06-02 15:20:00',
-    '555-1111',
-    'USA',
-    'San Francisco',
-    'http://example.com/image3.jpg',
+    '2023-06-03 08:30:00',
+    '555-3333',
+    'Italy',
+    'Rome',
+    'http://example.com/image5.jpg',
     'jaywalking'
+),
+(
+    5,
+    2,
+    '2023-06-03 13:45:00',
+    '555-4444',
+    'Greece',
+    'Athens',
+    'http://example.com/image6.jpg',
+    'red-light'
 );
