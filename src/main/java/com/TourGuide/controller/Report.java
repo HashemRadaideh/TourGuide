@@ -1,10 +1,10 @@
 package com.TourGuide.controller;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Calendar;
-import java.util.UUID;
 
 import com.TourGuide.model.Status;
 
@@ -27,60 +27,53 @@ public class Report extends HttpServlet {
             throws ServletException, IOException {
         final var session = request.getSession();
 
-        // final var userId = request.getParameter("userId");
-        // if (userId != null && !userId.isEmpty()) { // Remove the logical NOT operator
-        // here
-        // session.setAttribute("userId", userId.trim());
-        // final var user = new Cookie("userId", userId.trim());
-        // user.setMaxAge(60 * 60);
-        // response.addCookie(user);
+        // HACK: tried to store the userId again in the session using the cookie but it
+        // didn't work
+        // var userId = "";
+        // Cookie[] cookies = request.getCookies();
+        // if (cookies != null) {
+        // for (Cookie cookie : cookies) {
+        // if (cookie.getName().equals("userId")) {
+        // userId = cookie.getValue();
+        // break;
+        // }
+        // }
+        // }
+
+        // if (userId != null && !userId.isEmpty()) {
+        // session.setAttribute("postId", userId.trim());
+        // final var post = new Cookie("postId", userId.trim());
+        // post.setMaxAge(60 * 60 * 24 * 365);
+        // response.addCookie(post);
         // }
 
         final var postId = request.getParameter("postId");
-        if (postId != null && !postId.isEmpty()) { // Remove the logical NOT operator here
+        if (postId != null && !postId.isEmpty()) {
             session.setAttribute("postId", postId.trim());
             final var post = new Cookie("postId", postId.trim());
             post.setMaxAge(60 * 60);
             response.addCookie(post);
         }
 
-        // response.getWriter().println("userId value: " + userId + "\npostId value: " +
-        // postId);
-
         response.setContentType("text/html");
         request.getRequestDispatcher("report.jsp").forward(request, response);
     }
 
-    protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         final var stats = new Status();
 
         final var session = request.getSession();
 
-        // if (session.getAttribute("userId") == null) {
-        // response.sendRedirect("/Tour");
-        // }
-
-        if (session.getAttribute("postId") == null) {
-            response.sendRedirect("/Tour");
-        }
-
+        // FIXME: couldn't get the userId from the session or the cookie for some reason
+        final var userId = "1";
         // final var userId = (String) session.getAttribute("userId");
         final var postId = (String) session.getAttribute("postId");
 
-        // String userId = "";
-        // String postId = "";
-
-        // // Check if the "remember me" cookie is present
-        // Cookie[] cookies = request.getCookies();
-        // if (cookies != null) {
-        // for (Cookie cookie : cookies) {
-        // if (cookie.getName().equals("userId"))
-        // userId = cookie.getValue();
-        // if (cookie.getName().equals("postId"))
-        // userId = cookie.getValue();
-        // }
-        // }
+        if (session.getAttribute("postId") == null) {
+            response.sendRedirect("/Tour");
+            return;
+        }
 
         var content = "<p>Form Submission Failed</p><p>Please fill in all the required fields and try again.</p>";
         content += "<ul>";
@@ -127,15 +120,6 @@ public class Report extends HttpServlet {
             return;
         }
 
-        // var sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        // java.util.Date date;
-        // try {
-        // date = sdf.parse(dateString);
-        // } catch (ParseException e) {
-        // response.getWriter().println("Error: " + e.getMessage());
-        // return;
-        // }
-
         var url = "jdbc:mysql://localhost:3306/";
         var username = "admin";
         var password = "password";
@@ -146,21 +130,18 @@ public class Report extends HttpServlet {
 
             var connection = DriverManager.getConnection(url + database, username, password);
 
-            var sql = "INSERT INTO report (reportid, userid, postid, date, phonenumber, country, city, mediaurl, violationtype) "
-                    +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            var sql = "INSERT INTO report (userid, postid, date, phonenumber, country, city, mediaurl, violationtype) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             var statement = connection.prepareStatement(sql);
 
-            statement.setString(1, UUID.randomUUID().toString());
-            statement.setString(2, "10");
-            statement.setString(3, postId);
-            // statement.setString(4, dateString);
-            statement.setDate(4, new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
-            statement.setString(5, phone);
-            statement.setString(6, country);
-            statement.setString(7, city);
-            statement.setString(8, mediaUrl);
-            statement.setString(9, violationType);
+            statement.setInt(1, Integer.parseInt(userId));
+            statement.setInt(2, Integer.parseInt(postId));
+            statement.setDate(3, new Date(Calendar.getInstance().getTimeInMillis()));
+            statement.setString(4, phone);
+            statement.setString(5, country);
+            statement.setString(6, city);
+            statement.setString(7, mediaUrl);
+            statement.setString(8, violationType);
 
             statement.executeUpdate();
 
@@ -176,8 +157,40 @@ public class Report extends HttpServlet {
         request.getRequestDispatcher("response.jsp").forward(request, response);
     }
 
-    protected void doPut(final HttpServletRequest request, final HttpServletResponse response)
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        var postid = request.getParameter("postid");
+        var decision = request.getParameter("decision");
+
+        if (decision != null && decision.equals("accept")) {
+            // Update the database and increment the reportCount column
+            var url = "jdbc:mysql://localhost:3306/";
+            var username = "admin";
+            var password = "password";
+            var database = "TourGuide";
+
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                var connection = DriverManager.getConnection(url + database, username, password);
+
+                // Increment the reportCount column
+                var updateSql = "UPDATE post SET reportcount = reportcount + 1 WHERE postid = ?";
+                var updateStatement = connection.prepareStatement(updateSql);
+                updateStatement.setString(1, postid);
+                updateStatement.executeUpdate();
+                updateStatement.close();
+
+                updateStatement.close();
+                connection.close();
+            } catch (ClassNotFoundException | SQLException e) {
+                e.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().println("Error: " + e.getMessage());
+                return;
+            }
+
+            request.getRequestDispatcher("/Admin#user-reports").forward(request, response);
+        }
     }
 
     protected void doDelete(final HttpServletRequest request, final HttpServletResponse response)
