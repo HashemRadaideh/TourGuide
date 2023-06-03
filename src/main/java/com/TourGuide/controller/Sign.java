@@ -22,13 +22,13 @@ public class Sign extends HttpServlet {
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html");
-        var session = request.getSession();
+        final var session = request.getSession();
         session.invalidate();
 
         // Delete the "loggedIn" cookie
-        Cookie[] cookies = request.getCookies();
+        final Cookie[] cookies = request.getCookies();
         if (cookies != null) {
-            for (Cookie cookie : cookies) {
+            for (final Cookie cookie : cookies) {
                 if (cookie.getName().equals("loggedIn")) {
                     cookie.setMaxAge(0);
                     response.addCookie(cookie);
@@ -56,20 +56,21 @@ public class Sign extends HttpServlet {
             return;
         }
 
-        var url = "jdbc:mysql://localhost:3306/";
-        var db_username = "admin";
-        var db_password = "password";
-        var database = "TourGuide";
+        final var url = "jdbc:mysql://localhost:3306/";
+        final var db_username = "admin";
+        final var db_password = "password";
+        final var database = "TourGuide";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            var connection = DriverManager.getConnection(url + database, db_username, db_password);
+            final var connection = DriverManager.getConnection(url + database, db_username, db_password);
 
-            var prompt = connection.createStatement();
+            final var prompt = connection.createStatement();
 
-            var query = "SELECT * FROM user WHERE username = '" + username + "' AND password = '" + password + "'";
-            var loggedIn = prompt.executeQuery(query);
+            final var query = "SELECT * FROM user WHERE username = '" + username + "' AND password = '" + password
+                    + "'";
+            final var loggedIn = prompt.executeQuery(query);
 
             if (loggedIn.next()) { // Check if result set has rows
                 if (remember != null) {
@@ -93,7 +94,7 @@ public class Sign extends HttpServlet {
                 response.sendRedirect("/Home");
             } else if (username.equals("admin") && password.equals("1234")) {
 
-                session.setAttribute("userId", loggedIn.getInt("10000"));
+                // session.setAttribute("userId", loggedIn.getInt("10"));
 
                 response.sendRedirect("/Admin");
             } else {
