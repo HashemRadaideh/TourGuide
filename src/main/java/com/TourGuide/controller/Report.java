@@ -1,12 +1,11 @@
 package com.TourGuide.controller;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.UUID;
 
-import com.TourGuide.database.Database;
-import com.TourGuide.model.ReportTicket;
 import com.TourGuide.model.Status;
 
 import jakarta.servlet.ServletException;
@@ -28,13 +27,14 @@ public class Report extends HttpServlet {
             throws ServletException, IOException {
         final var session = request.getSession();
 
-        final var userId = request.getParameter("userId");
-        if (userId != null && !userId.isEmpty()) { // Remove the logical NOT operator here
-            session.setAttribute("userId", userId.trim());
-            final var user = new Cookie("userId", userId.trim());
-            user.setMaxAge(60 * 60);
-            response.addCookie(user);
-        }
+        // final var userId = request.getParameter("userId");
+        // if (userId != null && !userId.isEmpty()) { // Remove the logical NOT operator
+        // here
+        // session.setAttribute("userId", userId.trim());
+        // final var user = new Cookie("userId", userId.trim());
+        // user.setMaxAge(60 * 60);
+        // response.addCookie(user);
+        // }
 
         final var postId = request.getParameter("postId");
         if (postId != null && !postId.isEmpty()) { // Remove the logical NOT operator here
@@ -57,15 +57,15 @@ public class Report extends HttpServlet {
 
         final var session = request.getSession();
 
-        if (session.getAttribute("userId") == null) {
-            response.sendRedirect("/Tour");
-        }
+        // if (session.getAttribute("userId") == null) {
+        // response.sendRedirect("/Tour");
+        // }
 
         if (session.getAttribute("postId") == null) {
             response.sendRedirect("/Tour");
         }
 
-        final var userId = (String) session.getAttribute("userId");
+        // final var userId = (String) session.getAttribute("userId");
         final var postId = (String) session.getAttribute("postId");
 
         // String userId = "";
@@ -127,41 +127,53 @@ public class Report extends HttpServlet {
             return;
         }
 
+        // var sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        // java.util.Date date;
+        // try {
+        // date = sdf.parse(dateString);
+        // } catch (ParseException e) {
+        // response.getWriter().println("Error: " + e.getMessage());
+        // return;
+        // }
+
+        var url = "jdbc:mysql://localhost:3306/";
+        var username = "admin";
+        var password = "password";
+        var database = "TourGuide";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            var connection = DriverManager.getConnection(url + database, username, password);
+
+            var sql = "INSERT INTO report (reportid, userid, postid, date, phonenumber, country, city, mediaurl, violationtype) "
+                    +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            var statement = connection.prepareStatement(sql);
+
+            statement.setString(1, UUID.randomUUID().toString());
+            statement.setString(2, "10");
+            statement.setString(3, postId);
+            // statement.setString(4, dateString);
+            statement.setDate(4, new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
+            statement.setString(5, phone);
+            statement.setString(6, country);
+            statement.setString(7, city);
+            statement.setString(8, mediaUrl);
+            statement.setString(9, violationType);
+
+            statement.executeUpdate();
+
+            statement.close();
+            connection.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            response.getWriter().println("Error: " + e.getMessage());
+        }
+
         content = "<p>Thank you for submitting the form.</p>";
-        content += "<ul>";
-        content += "<li>" + userId + "</li>";
-        content += "<li>" + postId + "</li>";
-        content += "<li>" + dateString + "</li>";
-        content += "<li>" + phone + "</li>";
-        content += "<li>" + country + "</li>";
-        content += "<li>" + city + "</li>";
-        content += "<li>" + mediaUrl + "</li>";
-        content += "<li>" + violationType + "</li>";
-        content += "</ul>";
 
         request.setAttribute("content", content);
         request.getRequestDispatcher("response.jsp").forward(request, response);
-
-        var sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date;
-        try {
-            date = sdf.parse(dateString);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        var db = Database.getInstance();
-        var table = db.getTable("reports");
-        table.addData(new ReportTicket(
-                userId,
-                postId,
-                date,
-                phone,
-                country,
-                city,
-                mediaUrl,
-                violationType));
     }
 
     protected void doPut(final HttpServletRequest request, final HttpServletResponse response)
