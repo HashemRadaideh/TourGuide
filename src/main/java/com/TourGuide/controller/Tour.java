@@ -18,46 +18,45 @@ public class Tour extends HttpServlet {
         super();
     }
 
-    protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html");
+protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
+        throws ServletException, IOException {
+    response.setContentType("text/html");
 
-        var content = new StringBuilder();
+    var content = new StringBuilder();
 
-        var url = "jdbc:mysql://localhost:3306/";
-        var username = "admin";
-        var password = "password";
-        var database = "TourGuide";
+    var url = "jdbc:mysql://localhost:3306/";
+    var db_username = "admin";
+    var db_password = "password";
+    var database = "TourGuide";
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
 
-            var connection = DriverManager.getConnection(url + database, username, password);
+        var connection = DriverManager.getConnection(url + database, db_username, db_password);
 
-            var prompt = connection.createStatement();
+        var prompt = connection.createStatement();
 
-            var query = "SELECT * FROM post";
-            var post = prompt.executeQuery(query);
+        var query = "SELECT p.*, u.username FROM post p JOIN user u ON p.ownerid = u.id";
+        var post = prompt.executeQuery(query);
 
-            while (post.next()) {
-                content.append("<div class=\"block\">");
-                content.append("<h1>" + post.getString("username") + "</h1>");
-                content.append("<p>" + post.getString("content") + "</p>");
-                content.append("<a href=\"/Report?postId=" + post.getInt("id") +
-                        "\" class=\"button\">Report</a>");
-                content.append("</div>");
-            }
-
-            request.setAttribute("content", content);
-            request.getRequestDispatcher("tour.jsp").forward(request, response);
-
-            post.close();
-            prompt.close();
-            connection.close();
-        } catch (ClassNotFoundException | SQLException e) {
-            response.getWriter().println("Error: " + e.getMessage());
+        while (post.next()) {
+            content.append("<div class=\"block\">");
+            content.append("<h1>" + post.getString("username") + "</h1>"); // Display username
+            content.append("<p>" + post.getString("content") + "</p>");
+            content.append("<a href=\"/Report?postId=" + post.getInt("id") + "\" class=\"button\">Report</a>");
+            content.append("</div>");
         }
+
+        request.setAttribute("content", content.toString());
+        request.getRequestDispatcher("tour.jsp").forward(request, response);
+
+        post.close();
+        prompt.close();
+        connection.close();
+    } catch (ClassNotFoundException | SQLException e) {
+        response.getWriter().println("Error: " + e.getMessage());
     }
+}
 
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
