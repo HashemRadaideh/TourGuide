@@ -1,22 +1,5 @@
 # A Tourist Guide for Traffic and Litter Violations
 
-# Building
-
-> this project was built, tested and deployed on arch linux
-
-To build this program on arch linux use the provided script wrapper to build and deploy
-
-```bash
-# start the tomcat10 server
-./server start
-
-# stop the tomcat10 server
-./server stop
-
-# build and restart tomcat10 server
-./server push
-```
-
 Following the MVC architectural pattern, you should use Java Servlets/JSPs/HTML to develop a tourist guide for traffic
 and litter violations in a city. The application should do the following:
 
