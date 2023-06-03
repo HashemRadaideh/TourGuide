@@ -92,22 +92,49 @@ public class Sign extends HttpServlet {
                 logedIn.setMaxAge(60 * 60 * 24 * 365);
 
                 response.sendRedirect("/Home");
-            } else if (username.equals("admin") && password.equals("1234")) {
 
-                // session.setAttribute("userId", loggedIn.getInt("10"));
-
-                response.sendRedirect("/Admin");
-            } else {
-                request.setAttribute("msg", "Authentication failure.");
-
-                final var dispatcher = request.getRequestDispatcher("sign.jsp#in");
-                dispatcher.forward(request, response);
+                loggedIn.close();
+                prompt.close();
+                connection.close();
                 return;
             }
 
             loggedIn.close();
-            prompt.close();
-            connection.close();
+
+            final var adminQuery = "SELECT * FROM admin WHERE username = '" + username + "' AND password = '" + password
+                    + "'";
+
+            final var adminResult = prompt.executeQuery(adminQuery);
+
+            if (adminResult.next()) {
+                if (remember != null) {
+                    session.setAttribute("loggedIn", remember.trim());
+                    final var rememberMe = new Cookie("rememberMe", remember.trim());
+                    session.setAttribute("loggedUser", username.trim());
+                    final var name = new Cookie("username", username.trim());
+
+                    rememberMe.setMaxAge(60 * 60 * 24 * 365);
+                    name.setMaxAge(60 * 60 * 24 * 365);
+
+                    response.addCookie(rememberMe);
+                    response.addCookie(name);
+                }
+
+                session.setAttribute("adminId", adminResult.getInt("id"));
+
+                response.sendRedirect("/Admin");
+
+                adminResult.close();
+                prompt.close();
+                connection.close();
+                return;
+            }
+
+            adminResult.close();
+
+            request.setAttribute("msg", "Authentication failure.");
+
+            request.getRequestDispatcher("sign.jsp#in").forward(request, response);
         } catch (ClassNotFoundException | SQLException e) {
             response.getWriter().println("Error: " + e.getMessage());
         }
