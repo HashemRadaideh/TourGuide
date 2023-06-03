@@ -16,10 +16,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/Report")
-public class Report extends HttpServlet {
+public class ReportController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    public Report() {
+    public ReportController() {
         super();
     }
 

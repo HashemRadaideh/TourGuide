@@ -11,10 +11,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/Admin")
-public class Admin extends HttpServlet {
+public class AdminController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    public Admin() {
+    public AdminController() {
         super();
     }
 
