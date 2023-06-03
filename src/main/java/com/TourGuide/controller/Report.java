@@ -59,7 +59,7 @@ public class Report extends HttpServlet {
         request.getRequestDispatcher("report.jsp").forward(request, response);
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
         final var stats = new Status();
 
@@ -120,19 +120,19 @@ public class Report extends HttpServlet {
             return;
         }
 
-        var url = "jdbc:mysql://localhost:3306/";
-        var username = "admin";
-        var password = "password";
-        var database = "TourGuide";
+        final var url = "jdbc:mysql://localhost:3306/";
+        final var username = "admin";
+        final var password = "password";
+        final var database = "TourGuide";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            var connection = DriverManager.getConnection(url + database, username, password);
+            final var connection = DriverManager.getConnection(url + database, username, password);
 
-            var sql = "INSERT INTO report (userid, postid, date, phonenumber, country, city, mediaurl, violationtype) "
+            final var sql = "INSERT INTO report (userid, postid, date, phonenumber, country, city, mediaurl, violationtype) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            var statement = connection.prepareStatement(sql);
+            final var statement = connection.prepareStatement(sql);
 
             statement.setInt(1, Integer.parseInt(userId));
             statement.setInt(2, Integer.parseInt(postId));
@@ -157,40 +157,9 @@ public class Report extends HttpServlet {
         request.getRequestDispatcher("response.jsp").forward(request, response);
     }
 
-    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+    protected void doPut(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        var postid = request.getParameter("postid");
-        var decision = request.getParameter("decision");
 
-        if (decision != null && decision.equals("accept")) {
-            // Update the database and increment the reportCount column
-            var url = "jdbc:mysql://localhost:3306/";
-            var username = "admin";
-            var password = "password";
-            var database = "TourGuide";
-
-            try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                var connection = DriverManager.getConnection(url + database, username, password);
-
-                // Increment the reportCount column
-                var updateSql = "UPDATE post SET reportcount = reportcount + 1 WHERE postid = ?";
-                var updateStatement = connection.prepareStatement(updateSql);
-                updateStatement.setString(1, postid);
-                updateStatement.executeUpdate();
-                updateStatement.close();
-
-                updateStatement.close();
-                connection.close();
-            } catch (ClassNotFoundException | SQLException e) {
-                e.printStackTrace();
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().println("Error: " + e.getMessage());
-                return;
-            }
-
-            request.getRequestDispatcher("/Admin#user-reports").forward(request, response);
-        }
     }
 
     protected void doDelete(final HttpServletRequest request, final HttpServletResponse response)

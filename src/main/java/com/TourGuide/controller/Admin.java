@@ -95,6 +95,41 @@ public class Admin extends HttpServlet {
 
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
+        response.setContentType("text/html");
+
+        final var url = "jdbc:mysql://localhost:3306/";
+        final var username = "admin";
+        final var password = "password";
+        final var database = "TourGuide";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            final var connection = DriverManager.getConnection(url + database, username, password);
+
+            final var prompt = connection.createStatement();
+
+            final var decision = request.getParameter("decision");
+            final var postid = Integer.parseInt(request.getParameter("postid"));
+
+            if (decision.equals("accept")) {
+                // Update the database with the admin's decision
+                final var updateQuery = "UPDATE post SET reportcount = reportcount + 1 WHERE id = " + postid;
+                prompt.executeUpdate(updateQuery);
+            }
+
+            // Delete the report from the database
+            final var deleteQuery = "DELETE FROM report WHERE postid = " + postid;
+            prompt.executeUpdate(deleteQuery);
+
+            prompt.close();
+            connection.close();
+
+            // Redirect back to the admin page
+            response.sendRedirect("/Admin#user-reports");
+        } catch (ClassNotFoundException | SQLException e) {
+            response.getWriter().println("Error: " + e.getMessage());
+        }
     }
 
     protected void doPut(final HttpServletRequest request, final HttpServletResponse response)
