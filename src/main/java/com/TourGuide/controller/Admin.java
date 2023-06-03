@@ -36,35 +36,34 @@ public class Admin extends HttpServlet {
 
             final var prompt = connection.createStatement();
 
-            final var query = "SELECT r.reportid, r.postid, u.username, p.content, r.country, r.city, r.mediaurl, r.violationtype "
+            final var query = "SELECT r.reportid, r.postid, u.username, p.content, r.country, r.city, r.mediaurl, r.violationtype, r.reportdate "
                     +
                     "FROM report r " +
                     "JOIN user u ON r.userid = u.id " +
-                    "JOIN post p ON r.postid = p.id";
+                    "JOIN post p ON r.postid = p.id " +
+                    "WHERE r.isactive = 1 AND r.reportdate >= CURDATE() - INTERVAL 1 MONTH";
             final var resultSet = prompt.executeQuery(query);
 
             content.append("<section id=\"user-reports\" class=\"container\">");
             while (resultSet.next()) {
-                content.append(
-                        "<div style=\"margin-bottom: 10px;\">");
+                content.append("<div style=\"margin-bottom: 10px;\">");
 
-                // Display the post content
                 content.append("<span>Post Content: " + resultSet.getString("content") + "</span><br>");
 
-                // Display the violation type
                 content.append("<span>Violation Type: " + resultSet.getString("violationtype") + "</span><br>");
 
-                // Display the reporter username
                 content.append("<span>Reported by: " + resultSet.getString("username") + "</span><br>");
 
                 content.append("<form method=\"post\" action=\"/Admin\" style=\"margin-top: 10px;\">");
 
-                // Pass the report ID and post ID as hidden input fields
                 content.append("<input type=\"hidden\" name=\"reportid\" value=\"" +
                         resultSet.getString("reportid") + "\" />");
 
                 content.append("<input type=\"hidden\" name=\"postid\" value=\"" +
                         resultSet.getString("postid") + "\" />");
+
+                content.append("<input type=\"hidden\" name=\"violationType\" value=\"" +
+                        resultSet.getString("violationtype") + "\" />");
 
                 content.append(
                         "<label><input type=\"radio\" name=\"decision\" value=\"accept\" required /> Accept </label>");
@@ -76,6 +75,7 @@ public class Admin extends HttpServlet {
                 content.append("</form>");
                 content.append("</div>");
             }
+
             content.append("</section>");
 
             content.append("<section id=\"another-tab\" class=\"container\">" +
@@ -110,25 +110,54 @@ public class Admin extends HttpServlet {
             final var prompt = connection.createStatement();
 
             final var decision = request.getParameter("decision");
+            final var reportId = Integer.parseInt(request.getParameter("reportid"));
             final var postid = Integer.parseInt(request.getParameter("postid"));
+            final var violationType = request.getParameter("violationType");
 
             if (decision.equals("accept")) {
-                // Update the database with the admin's decision
-                final var updateQuery = "UPDATE post SET reportcount = reportcount + 1 WHERE id = " + postid;
+                final var updateQuery = getUpdateQueryForViolationType(violationType, postid);
                 prompt.executeUpdate(updateQuery);
             }
 
-            // Delete the report from the database
-            final var deleteQuery = "DELETE FROM report WHERE postid = " + postid;
-            prompt.executeUpdate(deleteQuery);
+            final var updateReportQuery = "UPDATE report SET isactive = 0 WHERE reportid = " + reportId;
+            prompt.executeUpdate(updateReportQuery);
+
+            final var falseViolationCountQuery = "SELECT COUNT(*) AS falseViolationCount " +
+                    "FROM report " +
+                    "WHERE userid = (SELECT userid FROM report WHERE reportid = " + reportId + ") " +
+                    "AND violationtype = 'false' AND isactive = 1";
+            final var resultSet = prompt.executeQuery(falseViolationCountQuery);
+            resultSet.next();
+            final var falseViolationCount = resultSet.getInt("falseViolationCount");
+            resultSet.close();
+
+            if (falseViolationCount >= 3) {
+                final var blockUserQuery = "UPDATE user SET blocked = 1 WHERE id = (SELECT userid FROM report WHERE reportid = "
+                        + reportId + ")";
+                prompt.executeUpdate(blockUserQuery);
+            }
 
             prompt.close();
             connection.close();
 
-            // Redirect back to the admin page
             response.sendRedirect("/Admin#user-reports");
         } catch (ClassNotFoundException | SQLException e) {
             response.getWriter().println("Error: " + e.getMessage());
+        }
+    }
+
+    private String getUpdateQueryForViolationType(String violationType, int postid) {
+        switch (violationType) {
+            case "red-light":
+                return "UPDATE post SET trafficcount = trafficcount + 1 WHERE id = " + postid;
+            case "stop-sign":
+                return "UPDATE post SET stopcount = stopcount + 1 WHERE id = " + postid;
+            case "jaywalking":
+                return "UPDATE post SET jaywalkcount = jaywalkcount + 1 WHERE id = " + postid;
+            case "littering":
+                return "UPDATE post SET littercount = littercount + 1 WHERE id = " + postid;
+            default:
+                throw new IllegalArgumentException("Invalid violation type: " + violationType);
         }
     }
 
