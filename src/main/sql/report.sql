@@ -1,58 +1,49 @@
 CREATE TABLE report (
-    reportid VARCHAR(255) PRIMARY KEY,
-    userid VARCHAR(255) NOT NULL,
-    postid VARCHAR(255) NOT NULL,
+    reportid INT PRIMARY KEY AUTO_INCREMENT,
+    userid INT NOT NULL,
+    postid INT NOT NULL,
     date DATETIME NOT NULL,
     phonenumber VARCHAR(20),
     country VARCHAR(255),
     city VARCHAR(255),
     mediaurl VARCHAR(255),
-    violationtype VARCHAR(255)
+    violationtype VARCHAR(255),
+    FOREIGN KEY (userid) REFERENCES user (id),
+    FOREIGN KEY (postid) REFERENCES post (id)
 );
 
--- Generate fake reports
+-- Report table
 INSERT INTO report (
-    reportid,
-    userid,
-    postid,
-    date,
-    phonenumber,
-    country,
-    city,
-    mediaurl,
-    violationtype
+    userid, postid, date, phonenumber, country, city, mediaurl, violationtype
 )
 VALUES
 (
-    'report1',
-    'user1',
-    'post1',
-    '2023-06-01 09:00:00',
-    '1234567890',
+    2,
+    1,
+    '2023-06-01 10:30:00',
+    '555-7777',
     'USA',
-    'New York',
-    'https://example.com/media/1',
-    'Spam'
-),
-(
-    'report2',
-    'user2',
-    'post2',
-    '2023-06-01 10:00:00',
-    '9876543210',
-    'Canada',
-    'Toronto',
-    'https://example.com/media/2',
+    'Los Angeles',
+    'http://example.com/image1.jpg',
     'Harassment'
 ),
 (
-    'report3',
-    'user3',
-    'post3',
-    '2023-06-02 11:00:00',
-    '5555555555',
-    'UK',
-    'London',
-    'https://example.com/media/3',
-    'Inappropriate Content'
+    3,
+    1,
+    '2023-06-02 09:45:00',
+    '555-9999',
+    'USA',
+    'Chicago',
+    'http://example.com/image2.jpg',
+    'Spam'
+),
+(
+    4,
+    2,
+    '2023-06-02 15:20:00',
+    '555-1111',
+    'USA',
+    'San Francisco',
+    'http://example.com/image3.jpg',
+    'Inappropriate content'
 );

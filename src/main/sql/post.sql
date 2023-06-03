@@ -1,13 +1,15 @@
 CREATE TABLE post (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(255) NOT NULL,
+    ownerid INT,
     content VARCHAR(255) NOT NULL,
-    reportcount INT DEFAULT 0
+    reportcount INT DEFAULT 0,
+    FOREIGN KEY (ownerid) REFERENCES user (id)
 );
 
-INSERT INTO post (username, content, reportcount)
+-- Post table
+INSERT INTO post (ownerid, content, reportcount)
 VALUES
-('user1', 'This is the content of post 1', 0),
-('user2', 'This is the content of post 2', 3),
-('user3', 'This is the content of post 3', 1),
-('user4', 'This is the content of post 4', 2);
+(1, 'Hello world!', 0),
+(2, 'Check out this cool photo.', 0),
+(3, 'Any recommendations for good restaurants?', 0),
+(4, 'Excited for the weekend!', 0);
