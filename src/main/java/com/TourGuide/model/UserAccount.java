@@ -16,7 +16,6 @@ public class UserAccount {
     private String city;
     private int age;
     private List<UserAccount> friends;
-    private int falseViolationCount;
 
     public UserAccount(String username, String password, String phoneNumber, boolean status, String firstName,
             String lastName,
@@ -31,7 +30,6 @@ public class UserAccount {
         this.age = age;
         this.friends = new ArrayList<>();
         this.phoneNumber = phoneNumber;
-        this.falseViolationCount = 0;
     }
 
     public String getUsername() {
@@ -76,13 +74,5 @@ public class UserAccount {
 
     public void addFriends(List<UserAccount> friends) {
         this.friends.addAll(friends);
-    }
-
-    public int getFalseViolationCount() {
-        return falseViolationCount;
-    }
-
-    public void setFalseViolationCount(int falseViolationCount) {
-        this.falseViolationCount = falseViolationCount;
     }
 }

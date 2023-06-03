@@ -12,7 +12,6 @@ CREATE TABLE report (
     FOREIGN KEY (postid) REFERENCES post (id)
 );
 
--- Report table
 INSERT INTO report (
     userid, postid, date, phonenumber, country, city, mediaurl, violationtype
 )

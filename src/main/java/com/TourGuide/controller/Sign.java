@@ -87,6 +87,9 @@ public class Sign extends HttpServlet {
 
                 session.setAttribute("userId", loggedIn.getInt("id"));
 
+                final var logedIn = new Cookie("userId", "" + loggedIn.getInt("id"));
+                logedIn.setMaxAge(60 * 60 * 24 * 365);
+
                 response.sendRedirect("/Home");
             } else if (username.equals("admin") && password.equals("1234")) {
 
