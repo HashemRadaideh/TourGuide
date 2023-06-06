@@ -130,7 +130,7 @@ public class ReportController extends HttpServlet {
 
             final var connection = DriverManager.getConnection(url + database, username, password);
 
-            final var sql = "INSERT INTO report (userid, postid, date, phonenumber, country, city, mediaurl, violationtype) "
+            final var sql = "INSERT INTO report (userid, postid, reportdate, phonenumber, country, city, mediaurl, violationtype) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             final var statement = connection.prepareStatement(sql);
 

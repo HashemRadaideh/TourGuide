@@ -122,21 +122,6 @@ public class AdminController extends HttpServlet {
             final var updateReportQuery = "UPDATE report SET isactive = 0 WHERE reportid = " + reportId;
             prompt.executeUpdate(updateReportQuery);
 
-            final var falseViolationCountQuery = "SELECT COUNT(*) AS falseViolationCount " +
-                    "FROM report " +
-                    "WHERE userid = (SELECT userid FROM report WHERE reportid = " + reportId + ") " +
-                    "AND violationtype = 'false' AND isactive = 1";
-            final var resultSet = prompt.executeQuery(falseViolationCountQuery);
-            resultSet.next();
-            final var falseViolationCount = resultSet.getInt("falseViolationCount");
-            resultSet.close();
-
-            if (falseViolationCount >= 3) {
-                final var blockUserQuery = "UPDATE user SET blocked = 1 WHERE id = (SELECT userid FROM report WHERE reportid = "
-                        + reportId + ")";
-                prompt.executeUpdate(blockUserQuery);
-            }
-
             prompt.close();
             connection.close();
 
